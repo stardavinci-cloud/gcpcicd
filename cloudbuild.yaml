@@ -1,0 +1,20 @@
+steps:
+# Build docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/crafty-stock-472202-v5/cc-devops-repo:$COMMIT_SHA', '.']
+    
+# Push Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia-south1-docker.pkg.dev/crafty-stock-472202-v5/cc-devops-repo:$COMMIT_SHA']
+
+# Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - gcp-devops-service
+      - --image=asia-south1-docker.pkg.dev/crafty-stock-472202-v5/cc-devops-repo:$COMMIT_SHA
+      - --region=asia-south1
+      - --platform=managed
+      - --allow-unauthenticated
